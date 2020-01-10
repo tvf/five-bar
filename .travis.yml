@@ -10,7 +10,7 @@ install:
 
 script:
   - yarn run format:check
-  - yarn run build:prod
+  - NODE_ENV=production yarn run build:prod
 
 deploy:
   skip_cleanup: true
