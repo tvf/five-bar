@@ -5,7 +5,7 @@
   "author": "Thomas Foster <thomasvfoster@gmail.com>",
   "scripts": {
     "build:dev": "parcel src/index.html",
-    "build:prod": "cross-env NODE_ENV=production parcel build src/index.html",
+    "build:prod": "cross-env NODE_ENV=production parcel build src/index.html --public-url https://tvf.github.io/five-bar",
     "format:check": "prettier --check ./**/*.{json,scss,html,ts}",
     "format:write": "prettier --write ./**/*.{json,scss,html,ts}"
   },
