@@ -2,7 +2,7 @@ import { vec2 } from 'gl-matrix';
 
 main();
 
-function paint_c_space(ctx) {
+function paint_c_space(ctx : CanvasRenderingContext2D) {
   for (let i = 0; i < 360; ++i) {
     for (let j = 0; j < 360; ++j) {
       const alpha = (Math.PI * i) / 180;
@@ -19,7 +19,7 @@ function paint_c_space(ctx) {
   }
 }
 
-function paint_robot(ctx, robot_state) {
+function paint_robot(ctx : CanvasRenderingContext2D, robot_state) {
   ctx.translate(240, 180);
   ctx.scale(-100, 100);
   ctx.rotate(Math.PI / 2);
