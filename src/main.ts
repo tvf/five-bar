@@ -19,7 +19,24 @@ function paint_c_space(ctx: CanvasRenderingContext2D) {
   }
 }
 
+function draw_robot_arm(ctx: CanvasRenderingContext2D, origin: vec2, angle: number) {
+  let transform = ctx.getTransform();
+
+  ctx.translate(origin[0], origin[1]);
+  ctx.rotate(angle);
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(1, 0);
+  ctx.stroke();
+
+  ctx.setTransform(transform);
+}
+
 function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
+  ctx.resetTransform();
+  ctx.clearRect(0, 0, 480, 360);
+
   ctx.translate(240, 180);
   ctx.scale(-100, 100);
   ctx.rotate(Math.PI / 2);
@@ -33,6 +50,11 @@ function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
   ctx.beginPath();
   ctx.arc(0.5, 0, draw_radius, 0, 2 * Math.PI, true);
   ctx.fill();
+
+  ctx.lineWidth = draw_radius;
+
+  draw_robot_arm(ctx, vec2.fromValues(-0.5, 0), robot_state.alpha);
+  draw_robot_arm(ctx, vec2.fromValues(0.5, 0), robot_state.alpha_prime);
 }
 
 function main() {
@@ -50,4 +72,11 @@ function main() {
   const simulation_ctx = simulation_canvas.getContext('2d');
 
   paint_robot(simulation_ctx, robot_state);
+
+  c_space_canvas.onclick = function(event: MouseEvent) {
+    robot_state.alpha = (Math.PI * event.offsetX) / 180;
+    robot_state.alpha_prime = (Math.PI * event.offsetY) / 180;
+
+    paint_robot(simulation_ctx, robot_state);
+  };
 }
