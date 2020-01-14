@@ -1,17 +1,26 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "chrome",
-        "request": "launch",
-        "name": "Launch Chrome against localhost",
-        "url": "http://localhost:1234/",
-        "webRoot": "${workspaceFolder}",
-        "trace": true,
-        "breakOnLoad": true,
-        "sourceMapPathOverrides": {
-            "../*": "${webRoot}/*"
-        }
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:1234/",
+      "webRoot": "${workspaceFolder}",
+      "trace": true,
+      "breakOnLoad": true,
+      "sourceMapPathOverrides": {
+        "../*": "${webRoot}/*"
       }
-    ]
-  }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Dev server",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "build:dev"],
+      "console": "integratedTerminal",
+      "noDebug": true
+    }
+  ]
+}
