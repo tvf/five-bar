@@ -19,7 +19,11 @@ function paint_c_space(ctx: CanvasRenderingContext2D) {
   }
 }
 
-function draw_robot_arm(ctx: CanvasRenderingContext2D, origin: vec2, angle: number) {
+function draw_robot_arm(
+  ctx: CanvasRenderingContext2D,
+  origin: vec2,
+  angle: number,
+) {
   let transform = ctx.getTransform();
 
   ctx.translate(origin[0], origin[1]);
@@ -63,12 +67,16 @@ function main() {
     alpha_prime: Math.PI / 2,
   };
 
-  const c_space_canvas: HTMLCanvasElement = document.getElementById('c-space') as HTMLCanvasElement;
+  const c_space_canvas: HTMLCanvasElement = document.getElementById(
+    'c-space',
+  ) as HTMLCanvasElement;
   const c_space_ctx = c_space_canvas.getContext('2d');
 
   paint_c_space(c_space_ctx);
 
-  const simulation_canvas: HTMLCanvasElement = document.getElementById('simulation') as HTMLCanvasElement;
+  const simulation_canvas: HTMLCanvasElement = document.getElementById(
+    'simulation',
+  ) as HTMLCanvasElement;
   const simulation_ctx = simulation_canvas.getContext('2d');
 
   paint_robot(simulation_ctx, robot_state);
