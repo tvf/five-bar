@@ -4,6 +4,7 @@
   "repository": "https://github.com/tvf/five-bar.git",
   "author": "Thomas Foster <thomasvfoster@gmail.com>",
   "scripts": {
+    "test": "jest",
     "build:dev": "parcel src/index.html",
     "build:prod": "cross-env NODE_ENV=production parcel build src/index.html --public-url https://tvf.github.io/five-bar",
     "format:check": "prettier --check ./**/*.{json,scss,html,ts}",
@@ -11,10 +12,13 @@
   },
   "devDependencies": {
     "@types/gl-matrix": "^2.4.5",
+    "@types/jest": "^24.9.0",
     "cross-env": "6.0.3",
+    "jest": "^24.9.0",
     "parcel-bundler": "1.12.4",
     "prettier": "1.19.1",
     "sass": "1.24.4",
+    "ts-jest": "^24.3.0",
     "typescript": "3.7.4"
   },
   "dependencies": {
