@@ -3,14 +3,12 @@ sudo: false
 language: node_js
 node_js: 10
 
-cache: yarn
-
 install:
-  - yarn install --frozen-lockfile
+  - npm ci
 
 script:
-  - yarn run format:check
-  - yarn run build:prod
+  - npm run format:check
+  - npm run build:prod
 
 deploy:
   skip_cleanup: true
