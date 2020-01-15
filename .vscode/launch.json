@@ -17,10 +17,9 @@
       "type": "node",
       "request": "launch",
       "name": "Dev server",
-      "runtimeExecutable": "yarn",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "build:dev"],
-      "console": "integratedTerminal",
-      "noDebug": true
+      "console": "integratedTerminal"
     }
   ]
 }
