@@ -1,0 +1,1 @@
+{"version":3,"sources":["style.scss"],"names":[],"mappings":"AAAA,gBACE,YAAA,CACA,uBAGF,uBACE,qBAAA,CACA","file":"style.45e8a869.css","sourceRoot":"../src","sourcesContent":["#visualisations {\n  display: flex;\n  justify-content: center;\n}\n\n#visualisations canvas {\n  border: 1px solid black;\n  margin: 5px;\n}\n"]}
