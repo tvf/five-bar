@@ -8,8 +8,11 @@ function paint_c_space(ctx: CanvasRenderingContext2D) {
       const alpha = (Math.PI * i) / 180;
       const alpha_prime = (Math.PI * j) / 180;
 
-      const elbow = [Math.cos(alpha) - 0.5, Math.sin(alpha)];
-      const elbow_prime = [Math.cos(alpha_prime) + 0.5, Math.sin(alpha_prime)];
+      const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
+      const elbow_prime = vec2.fromValues(
+        Math.cos(alpha_prime) + 0.5,
+        Math.sin(alpha_prime),
+      );
 
       const elbow_distance = vec2.distance(elbow, elbow_prime);
 
@@ -26,14 +29,17 @@ function draw_robot_arms(
   alpha: number,
   alpha_prime: number,
 ) {
-  const elbow = [Math.cos(alpha) - 0.5, Math.sin(alpha)];
-  const elbow_prime = [Math.cos(alpha_prime) + 0.5, Math.sin(alpha_prime)];
+  const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
+  const elbow_prime = vec2.fromValues(
+    Math.cos(alpha_prime) + 0.5,
+    Math.sin(alpha_prime),
+  );
   const elbow_distance = vec2.distance(elbow, elbow_prime);
   const between_elbows = vec2.sub(vec2.create(), elbow_prime, elbow);
 
   const perp_length = Math.sqrt(1 - Math.pow(elbow_distance * 0.5, 2));
   let perp = vec2.normalize(vec2.create(), [
-    between_elbows[1],
+    -between_elbows[1],
     between_elbows[0],
   ]);
   vec2.scale(perp, perp, perp_length);
@@ -53,24 +59,6 @@ function draw_robot_arms(
   ctx.stroke();
 }
 
-function draw_robot_arm(
-  ctx: CanvasRenderingContext2D,
-  origin: vec2,
-  angle: number,
-) {
-  let transform = ctx.getTransform();
-
-  ctx.translate(origin[0], origin[1]);
-  ctx.rotate(angle);
-
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(1, 0);
-  ctx.stroke();
-
-  ctx.setTransform(transform);
-}
-
 function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
   ctx.resetTransform();
   ctx.clearRect(0, 0, 480, 360);
@@ -78,6 +66,8 @@ function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
   ctx.translate(240, 180);
   ctx.scale(-100, 100);
   ctx.rotate(Math.PI / 2);
+
+  ctx.lineJoin = 'round';
 
   const draw_radius = 0.05;
 
@@ -116,10 +106,12 @@ function main() {
 
   paint_robot(simulation_ctx, robot_state);
 
-  c_space_canvas.onclick = function(event: MouseEvent) {
-    robot_state.alpha = (Math.PI * event.offsetX) / 180;
-    robot_state.alpha_prime = (Math.PI * event.offsetY) / 180;
+  c_space_canvas.onmousemove = function (event: MouseEvent) {
+    if (event.buttons) {
+      robot_state.alpha = (Math.PI * event.offsetX) / 180;
+      robot_state.alpha_prime = (Math.PI * event.offsetY) / 180;
 
-    paint_robot(simulation_ctx, robot_state);
+      paint_robot(simulation_ctx, robot_state);
+    }
   };
 }
