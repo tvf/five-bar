@@ -2,16 +2,25 @@ import { vec2 } from 'gl-matrix';
 
 main();
 
+function legal_position(alpha: number, alpha_prime: number) {
+  const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
+  const elbow_prime = vec2.fromValues(
+    Math.cos(alpha_prime) + 0.5,
+    Math.sin(alpha_prime),
+  );
+
+  const elbow_distance = vec2.distance(elbow, elbow_prime);
+
+  return elbow_distance <= 1.99;
+}
+
 function paint_c_space(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < 360; ++i) {
     for (let j = 0; j < 360; ++j) {
       const alpha = (Math.PI * i) / 180;
       const alpha_prime = (Math.PI * j) / 180;
 
-      const elbow = [Math.cos(alpha) - 0.5, Math.sin(alpha)];
-      const elbow_prime = [Math.cos(alpha_prime) + 0.5, Math.sin(alpha_prime)];
-
-      if (vec2.distance(elbow, elbow_prime) > 1.9) {
+      if (!legal_position(alpha, alpha_prime)) {
         ctx.fillStyle = 'rgb(255, 0, 0)';
         ctx.fillRect(i, j, 1, 1);
       }
@@ -19,22 +28,39 @@ function paint_c_space(ctx: CanvasRenderingContext2D) {
   }
 }
 
-function draw_robot_arm(
+function draw_robot_arms(
   ctx: CanvasRenderingContext2D,
-  origin: vec2,
-  angle: number,
+  alpha: number,
+  alpha_prime: number,
 ) {
-  let transform = ctx.getTransform();
+  const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
+  const elbow_prime = vec2.fromValues(
+    Math.cos(alpha_prime) + 0.5,
+    Math.sin(alpha_prime),
+  );
+  const elbow_distance = vec2.distance(elbow, elbow_prime);
+  const between_elbows = vec2.sub(vec2.create(), elbow_prime, elbow);
 
-  ctx.translate(origin[0], origin[1]);
-  ctx.rotate(angle);
+  const perp_length = Math.sqrt(1 - Math.pow(elbow_distance * 0.5, 2));
+  let perp = vec2.normalize(vec2.create(), [
+    -between_elbows[1],
+    between_elbows[0],
+  ]);
+  vec2.scale(perp, perp, perp_length);
+
+  const wrist_location = vec2.add(
+    vec2.create(),
+    perp,
+    vec2.lerp(vec2.create(), elbow, elbow_prime, 0.5),
+  );
 
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(1, 0);
+  ctx.moveTo(-0.5, 0);
+  ctx.lineTo(elbow[0], elbow[1]);
+  ctx.lineTo(wrist_location[0], wrist_location[1]);
+  ctx.lineTo(elbow_prime[0], elbow_prime[1]);
+  ctx.lineTo(0.5, 0);
   ctx.stroke();
-
-  ctx.setTransform(transform);
 }
 
 function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
@@ -44,6 +70,8 @@ function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
   ctx.translate(240, 180);
   ctx.scale(-100, 100);
   ctx.rotate(Math.PI / 2);
+
+  ctx.lineJoin = 'round';
 
   const draw_radius = 0.05;
 
@@ -57,8 +85,9 @@ function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
 
   ctx.lineWidth = draw_radius;
 
-  draw_robot_arm(ctx, vec2.fromValues(-0.5, 0), robot_state.alpha);
-  draw_robot_arm(ctx, vec2.fromValues(0.5, 0), robot_state.alpha_prime);
+  draw_robot_arms(ctx, robot_state.alpha, robot_state.alpha_prime);
+  // draw_robot_arm(ctx, vec2.fromValues(-0.5, 0), robot_state.alpha);
+  // draw_robot_arm(ctx, vec2.fromValues(0.5, 0), robot_state.alpha_prime);
 }
 
 function main() {
@@ -81,10 +110,17 @@ function main() {
 
   paint_robot(simulation_ctx, robot_state);
 
-  c_space_canvas.onclick = function(event: MouseEvent) {
-    robot_state.alpha = (Math.PI * event.offsetX) / 180;
-    robot_state.alpha_prime = (Math.PI * event.offsetY) / 180;
+  c_space_canvas.onmousemove = function (event: MouseEvent) {
+    if (event.buttons) {
+      const alpha = (Math.PI * event.offsetX) / 180;
+      const alpha_prime = (Math.PI * event.offsetY) / 180;
 
-    paint_robot(simulation_ctx, robot_state);
+      if (legal_position(alpha, alpha_prime)) {
+        robot_state.alpha = alpha;
+        robot_state.alpha_prime = alpha_prime;
+
+        paint_robot(simulation_ctx, robot_state);
+      }
+    }
   };
 }
