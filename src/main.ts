@@ -2,21 +2,25 @@ import { vec2 } from 'gl-matrix';
 
 main();
 
+function legal_position(alpha: number, alpha_prime: number) {
+  const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
+  const elbow_prime = vec2.fromValues(
+    Math.cos(alpha_prime) + 0.5,
+    Math.sin(alpha_prime),
+  );
+
+  const elbow_distance = vec2.distance(elbow, elbow_prime);
+
+  return elbow_distance <= 1.99;
+}
+
 function paint_c_space(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < 360; ++i) {
     for (let j = 0; j < 360; ++j) {
       const alpha = (Math.PI * i) / 180;
       const alpha_prime = (Math.PI * j) / 180;
 
-      const elbow = vec2.fromValues(Math.cos(alpha) - 0.5, Math.sin(alpha));
-      const elbow_prime = vec2.fromValues(
-        Math.cos(alpha_prime) + 0.5,
-        Math.sin(alpha_prime),
-      );
-
-      const elbow_distance = vec2.distance(elbow, elbow_prime);
-
-      if (elbow_distance > 1.9 || elbow_distance < 0.01) {
+      if (!legal_position(alpha, alpha_prime)) {
         ctx.fillStyle = 'rgb(255, 0, 0)';
         ctx.fillRect(i, j, 1, 1);
       }
@@ -108,10 +112,15 @@ function main() {
 
   c_space_canvas.onmousemove = function (event: MouseEvent) {
     if (event.buttons) {
-      robot_state.alpha = (Math.PI * event.offsetX) / 180;
-      robot_state.alpha_prime = (Math.PI * event.offsetY) / 180;
+      const alpha = (Math.PI * event.offsetX) / 180;
+      const alpha_prime = (Math.PI * event.offsetY) / 180;
 
-      paint_robot(simulation_ctx, robot_state);
+      if (legal_position(alpha, alpha_prime)) {
+        robot_state.alpha = alpha;
+        robot_state.alpha_prime = alpha_prime;
+
+        paint_robot(simulation_ctx, robot_state);
+      }
     }
   };
 }
