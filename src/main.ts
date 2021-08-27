@@ -11,12 +11,46 @@ function paint_c_space(ctx: CanvasRenderingContext2D) {
       const elbow = [Math.cos(alpha) - 0.5, Math.sin(alpha)];
       const elbow_prime = [Math.cos(alpha_prime) + 0.5, Math.sin(alpha_prime)];
 
-      if (vec2.distance(elbow, elbow_prime) > 1.9) {
+      const elbow_distance = vec2.distance(elbow, elbow_prime);
+
+      if (elbow_distance > 1.9 || elbow_distance < 0.01) {
         ctx.fillStyle = 'rgb(255, 0, 0)';
         ctx.fillRect(i, j, 1, 1);
       }
     }
   }
+}
+
+function draw_robot_arms(
+  ctx: CanvasRenderingContext2D,
+  alpha: number,
+  alpha_prime: number,
+) {
+  const elbow = [Math.cos(alpha) - 0.5, Math.sin(alpha)];
+  const elbow_prime = [Math.cos(alpha_prime) + 0.5, Math.sin(alpha_prime)];
+  const elbow_distance = vec2.distance(elbow, elbow_prime);
+  const between_elbows = vec2.sub(vec2.create(), elbow_prime, elbow);
+
+  const perp_length = Math.sqrt(1 - Math.pow(elbow_distance * 0.5, 2));
+  let perp = vec2.normalize(vec2.create(), [
+    between_elbows[1],
+    between_elbows[0],
+  ]);
+  vec2.scale(perp, perp, perp_length);
+
+  const wrist_location = vec2.add(
+    vec2.create(),
+    perp,
+    vec2.lerp(vec2.create(), elbow, elbow_prime, 0.5),
+  );
+
+  ctx.beginPath();
+  ctx.moveTo(-0.5, 0);
+  ctx.lineTo(elbow[0], elbow[1]);
+  ctx.lineTo(wrist_location[0], wrist_location[1]);
+  ctx.lineTo(elbow_prime[0], elbow_prime[1]);
+  ctx.lineTo(0.5, 0);
+  ctx.stroke();
 }
 
 function draw_robot_arm(
@@ -57,8 +91,9 @@ function paint_robot(ctx: CanvasRenderingContext2D, robot_state) {
 
   ctx.lineWidth = draw_radius;
 
-  draw_robot_arm(ctx, vec2.fromValues(-0.5, 0), robot_state.alpha);
-  draw_robot_arm(ctx, vec2.fromValues(0.5, 0), robot_state.alpha_prime);
+  draw_robot_arms(ctx, robot_state.alpha, robot_state.alpha_prime);
+  // draw_robot_arm(ctx, vec2.fromValues(-0.5, 0), robot_state.alpha);
+  // draw_robot_arm(ctx, vec2.fromValues(0.5, 0), robot_state.alpha_prime);
 }
 
 function main() {
